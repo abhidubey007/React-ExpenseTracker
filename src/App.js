@@ -1,35 +1,53 @@
-import React from 'react'
-import Expenses from './components/Expenses/Expenses'
+import React, {useState, useEffect} from 'react';
+
+import NewExpense from './components/NewExpense/NewExpense';
+
+import Expenses from './components/Expenses/Expenses';
 
 
-const App = (props) => {
-  let expenses = [
-    {
-      id: "e1",
-      date: new Date(), //2022, 5, 13
-      title: "School Fee",
-      amount: 300
-    },
-    {
-      id: "e2",
-      date: new Date(), //2022, 5, 13
-      title: "Bus Fee",
-      amount: 150
-    },
-    {
-      id: "e3",
-      date: new Date(), //2022, 5, 13
-      title: "Cloths",
-      amount: 300
-    },
-  ];
+let DUMMY_EXPENSE = [];
 
-  return (
-    <div>
-      <h2>Let's get started</h2>
-      <Expenses item={expenses} />
-    </div>
-  )
+const App = () => {
+    
+    const [expenses, setExpenses] = useState(DUMMY_EXPENSE);
+
+    function fetchData(){
+        fetch('/').then(
+            response => {
+                return response.json();
+            }
+        ).then(
+            data => {
+                console.log(data);
+                setExpenses(data);
+            }
+        );
+    }
+
+    useEffect(()=>{
+        fetchData();
+    },[]);
+
+    const addExpenseHandler = (expense) => {
+        fetch('/', {
+            method: 'POST',
+            body: JSON.stringify(expense),
+            headers: {
+                'content-Type' : 'application/json'
+            }
+        }).then(
+            response => {
+                fetchData();
+            }
+        );
+    };
+
+    return (
+        <div>
+            <NewExpense onAddExpense={addExpenseHandler} />
+            <Expenses item={expenses} />
+        </div>    
+    );
 }
 
-export default App
+export default App;
